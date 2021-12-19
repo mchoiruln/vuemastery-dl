@@ -76,11 +76,24 @@ module.exports = async (page, courseURL) => {
         )[0]
     );
 
+    // console.log("view-source:" + iframeSrc),
     await Promise.all([
       page.goto("view-source:" + iframeSrc, { waitUntil: "networkidle0" }),
       page.waitForNavigation(),
     ]);
 
+    const tracks = await page.evaluate(
+      () =>
+        Array.from(
+          document.body.querySelectorAll("td.line-content"),
+          (txt) => txt.textContent
+        )[0]
+          .split(`text_tracks":`)[1]
+          .split(`,"client":`)[0]
+    );
+    const viemo_url = "https://player.vimeo.com";
+    const track_1 = JSON.parse(tracks)[0];
+    const text = `${viemo_url}${track_1.url}`;
     const content = await page.evaluate(
       () =>
         Array.from(
@@ -103,7 +116,10 @@ module.exports = async (page, courseURL) => {
     );
 
     selectedVideo.filename = `${courseTitle}/${courseTitle}-${index}-${videoTitle}.mp4`;
+    track_1.filename = `${courseTitle}/${courseTitle}-${index}-${videoTitle}.vtt`;
+    track_1.url = text;
     videos.push(selectedVideo);
+    videos.push(track_1);
     bar1.update(index + 1);
 
     await Promise.all([

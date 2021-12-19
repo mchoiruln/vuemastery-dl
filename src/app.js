@@ -14,6 +14,15 @@ const run = async (courses) => {
     width: 1920,
     height: 1080,
   });
+  await page.setRequestInterception(true);
+
+  page.on("request", (req) => {
+    if (req.resourceType() === "image") {
+      req.abort();
+    } else {
+      req.continue();
+    }
+  });
 
   const videos = [];
   await login(page, process.env.EMAIL, process.env.PASSWORD);

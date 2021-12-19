@@ -73,7 +73,12 @@ module.exports = async (videos) => {
       );
 
       promises.push(
-        downloadVideo(video.url, dir + "/" + filename.replace("/", "-"))
+        downloadVideo(
+          video.url,
+          dir +
+            "/" +
+            filename.replace(/\//g, "-").replace(/\:/g, "-").replace("?", "-")
+        )
       );
     }
 
